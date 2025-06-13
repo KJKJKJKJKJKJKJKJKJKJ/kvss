@@ -300,7 +300,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- 환자 정보 입력 화면 -->
         <div class="screen info-screen active">
             <h1>KVSS Test II - 인지검사</h1>
             <div class="form-group">
@@ -314,7 +313,6 @@
             <button class="btn" onclick="submitPatientInfo()">다음</button>
         </div>
         
-        <!-- 시작 화면 -->
         <div class="screen start-screen">
             <h1>KVSS Test II - 인지검사</h1>
             <div class="instructions">
@@ -328,7 +326,6 @@
             <button class="btn" onclick="startTest()">검사 시작</button>
         </div>
         
-        <!-- 검사 화면 -->
         <div class="screen test-screen">
             <button class="stop-btn" onclick="stopTest()">검사 중단하기</button>
             <div class="progress">
@@ -336,11 +333,9 @@
             </div>
             <div class="question-number"><span id="current">1</span>번 펜</div>
             <div class="options" id="options">
-                <!-- 옵션 버튼들이 여기에 동적으로 생성됩니다 -->
-            </div>
+                </div>
         </div>
         
-        <!-- 대기 화면 -->
         <div class="screen waiting-screen">
             <button class="stop-btn" onclick="stopTest()">검사 중단하기</button>
             <h2>다음 문항 준비중...</h2>
@@ -349,7 +344,6 @@
             <p>냄새 적응을 방지하기 위한 휴식 시간입니다</p>
         </div>
         
-        <!-- 결과 화면 -->
         <div class="screen result-screen">
             <h1>검사 종료</h1>
             <div style="margin: 40px 0; font-size: 24px; color: #333;">
@@ -361,7 +355,7 @@
         </div>
     </div>
     
-        <script>
+    <script>
         // 이모지 매핑
         const emojiMap = {
             "오렌지": "🍊",
@@ -431,9 +425,9 @@
             { 
                 pen: 2,
                 options: [
-                    { text: "연기", correct: true },
+                    { text: "연기", correct: false },
                     { text: "접착제", correct: false },
-                    { text: "가죽", correct: false },
+                    { text: "가죽", correct: true },
                     { text: "풀", correct: false }
                 ]
             },
@@ -503,406 +497,8 @@
             { 
                 pen: 10,
                 options: [
-                    { text: "담배", correct: true },
-                    { text: "커피", correct: false },
-                    { text: "포도주", correct: false },
-                    { text: "연기", correct: false }
-                ]
-            },
-            { 
-                pen: 11,
-                options: [
-                    { text: "멜론", correct: false },
-                    { text: "복숭아", correct: false },
-                    { text: "오렌지", correct: false },
-                    { text: "사과", correct: true }
-                ]
-            },
-            { 
-                pen: 12,
-                options: [
-                    { text: "간장", correct: true },
-                    { text: "후추", correct: false },
-                    { text: "계피", correct: false },
-                    { text: "겨자", correct: false }
-                ]
-            },
-            { 
-                pen: 13,
-                options: [
-                    { text: "배", correct: false },
-                    { text: "자두", correct: false },
-                    { text: "복숭아", correct: false },
-                    { text: "파인애플", correct: true }
-                ]
-            },
-            { 
-                pen: 14,
-                options: [
-                    { text: "녹차", correct: false },
-                    { text: "나무딸기", correct: false },
-                    { text: "장미", correct: true },
-                    { text: "버찌", correct: false }
-                ]
-            },
-            { 
-                pen: 15,
-                options: [
-                    { text: "참기름", correct: true },
-                    { text: "럼주", correct: false },
-                    { text: "꿀", correct: false },
-                    { text: "전나무", correct: false }
-                ]
-            },
-            { 
-                pen: 16,
-                options: [
-                    { text: "빵", correct: false },
-                    { text: "생선", correct: true },
-                    { text: "치즈", correct: false },
-                    { text: "햄", correct: false }
-                ]
-            }
-        ];
-        
-        let currentQuestion = 0;
-        let answers = [];
-        let waitingTimer = null;
-        let patientInfo = {};
-        let testStartTime = null;
-        
-        // 환자 정보 제출 함수
-        function submitPatientInfo() {
-            const name = document.getElementById('patientName').value;
-            const id = document.getElementById('patientId').value;
-            
-            if (!name || !id) {
-                alert('이름과 병록번호를 모두 입력해주세요.');
-                return;
-            }
-            
-            patientInfo = {
-                name: name,
-                id: id,
-                date: new Date().toLocaleString('ko-KR')
-            };
-            showScreen('start-screen');
-        }
-        
-        function startTest() {
-            testStartTime = new Date();
-            showScreen('test-screen');
-            showQuestion();
-        }
-        
-        function stopTest() {
-            if (confirm('검사를 중단하시겠습니까?')) {
-                if (waitingTimer) {
-                    clearInterval(waitingTimer);
-                }
-                currentQuestion = 0;
-                answers = [];
-                testStartTime = null;
-                document.getElementById('patientName').value = '';
-                document.getElementById('patientId').value = '';
-                showScreen('info-screen');
-            }
-        }
-        
-        function showScreen(screenName) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
-            document.querySelector('.' + screenName).classList.add('active');
-        }
-        
-        function showQuestion() {
-            const question = testData[currentQuestion];
-            document.getElementById('current').textContent = question.pen;
-            
-            // 진행률 업데이트
-            const progress = ((currentQuestion + 1) / testData.length) * 100;
-            document.querySelector('.progress-bar').style.width = progress + '%';
-            
-            // 옵션 버튼 생성
-            const optionsContainer = document.getElementById('options');
-            optionsContainer.innerHTML = '';
-            
-            question.options.forEach((option, index) => {
-                const button = document.createElement('button');
-                button.className = 'option-btn';
-                
-                const emoji = document.createElement('div');
-                emoji.className = 'option-emoji';
-                
-                // 이모지가 없는 경우 텍스트만 표시
-                const emojiChar = emojiMap[option.text];
-                if (emojiChar === "") {
-                    emoji.className = 'option-emoji text-only';
-                    emoji.textContent = option.text;
-                } else {
-                    emoji.textContent = emojiChar || '❓';
-                }
-                
-                const text = document.createElement('div');
-                text.className = 'option-text';
-                text.textContent = option.text;
-                
-                button.appendChild(emoji);
-                // 이모지가 없는 경우 중복 텍스트 표시 안함
-                if (emojiChar !== "") {
-                    button.appendChild(text);
-                }
-                button.onclick = () => selectAnswer(index);
-                optionsContainer.appendChild(button);
-            });
-        }
-        
-        function selectAnswer(selectedIndex) {
-            const question = testData[currentQuestion];
-            const correctIndex = question.options.findIndex(opt => opt.correct);
-            
-            answers.push({
-                pen: question.pen,
-                selected: selectedIndex,
-                correct: selectedIndex === correctIndex,
-                selectedOption: question.options[selectedIndex].text,
-                correctOption: question.options[correctIndex].text
-            });
-            
-            currentQuestion++;
-            
-            if (currentQuestion < testData.length) {
-                // 다음 펜 번호 표시
-                document.getElementById('nextPen').textContent = testData[currentQuestion].pen;
-                // 대기 화면 표시
-                showScreen('waiting-screen');
-                startWaitingTimer();
-            } else {
-                // 검사 종료
-                showResults();
-            }
-        }
-        
-        function startWaitingTimer() {
-            let seconds = 5;
-            document.getElementById('countdown').textContent = seconds;
-            
-            waitingTimer = setInterval(() => {
-                seconds--;
-                document.getElementById('countdown').textContent = seconds;
-                
-                if (seconds <= 0) {
-                    clearInterval(waitingTimer);
-                    showScreen('test-screen');
-                    showQuestion();
-                }
-            }, 1000);
-        }
-        
-        function showResults() {
-            showScreen('result-screen');
-            
-            const correctCount = answers.filter(a => a.correct).length;
-            
-            // 구글 스프레드시트에 저장
-            saveToGoogleSheets(correctCount);
-        }
-        
-        function saveToGoogleSheets(correctCount) {
-            const testEndTime = new Date();
-            const duration = Math.round((testEndTime - testStartTime) / 1000); // 초 단위
-            
-            const data = {
-                timestamp: new Date().toISOString(),
-                patientName: patientInfo.name,
-                patientId: patientInfo.id,
-                score: correctCount,
-                totalQuestions: testData.length,
-                percentage: Math.round((correctCount / testData.length) * 100),
-                duration: duration,
-                answers: answers
-            };
-            
-            // Google Apps Script Web App URL이 필요합니다
-            // 아래 URL을 실제 Google Apps Script URL로 변경해야 합니다
-            const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
-            
-            const statusDiv = document.getElementById('saveStatus');
-            statusDiv.style.display = 'block';
-            statusDiv.className = 'save-status';
-            statusDiv.textContent = '결과를 저장하는 중...';
-            
-            // 실제 구현시 주석 해제
-            /*
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data)
-            })
-            .then(() => {
-                statusDiv.className = 'save-status save-success';
-                statusDiv.textContent = '✓ 결과가 성공적으로 저장되었습니다.';
-            })
-            .catch(error => {
-                statusDiv.className = 'save-status save-error';
-                statusDiv.textContent = '⚠ 저장 중 오류가 발생했습니다.';
-                console.error('Error:', error);
-            });
-            */
-            
-            // 테스트용 - 실제 구현시 제거
-            console.log('저장할 데이터:', data);
-            statusDiv.className = 'save-status save-success';
-            statusDiv.textContent = '✓ 결과가 콘솔에 출력되었습니다. (테스트 모드)';
-        }
-    </script>
-        // 이모지 매핑
-        const emojiMap = {
-            "오렌지": "🍊",
-            "검은딸기": "🍇",
-            "딸기": "🍓",
-            "파인애플": "🍍",
-            "연기": "💨",
-            "접착제": "🔧",
-            "가죽": "🥾",
-            "풀": "🌱",
-            "꿀": "🍯",
-            "바닐라": "🍦",
-            "초코렛": "🍫",
-            "계피": "",
-            "파": "🧅",
-            "페퍼민트": "🌿",
-            "전나무": "🌲",
-            "양파": "🧅",
-            "코코넛": "🥥",
-            "바나나": "🍌",
-            "호두": "🥜",
-            "버찌": "🍒",
-            "복숭아": "🍑",
-            "사과": "🍎",
-            "레몬": "🍋",
-            "자몽": "🍊",
-            "감초": "🌿",
-            "츄잉껌": "🍬",
-            "과자": "🍪",
-            "겨자": "",
-            "고무": "🎈",
-            "박하뇌": "🌿",
-            "송진": "🌲",
-            "찐양배추": "🥬",
-            "마늘": "🧄",
-            "당근": "🥕",
-            "담배": "🚬",
-            "커피": "☕",
-            "포도주": "🍷",
-            "멜론": "🍈",
-            "간장": "",
-            "후추": "",
-            "배": "🍐",
-            "자두": "🍑",
-            "녹차": "🍵",
-            "나무딸기": "🍓",
-            "장미": "🌹",
-            "참기름": "🏺",
-            "럼주": "🥃",
-            "빵": "🍞",
-            "생선": "🐟",
-            "치즈": "🧀",
-            "햄": "🥓"
-        };
-        
-        // KVSS Test II 데이터 - 표에 따라 정확히 입력
-        const testData = [
-            { 
-                pen: 1,
-                options: [
-                    { text: "오렌지", correct: true },
-                    { text: "검은딸기", correct: false },
-                    { text: "딸기", correct: false },
-                    { text: "파인애플", correct: false }
-                ]
-            },
-            { 
-                pen: 2,
-                options: [
-                    { text: "연기", correct: true },
-                    { text: "접착제", correct: false },
-                    { text: "가죽", correct: false },
-                    { text: "풀", correct: false }
-                ]
-            },
-            { 
-                pen: 3,
-                options: [
-                    { text: "꿀", correct: false },
-                    { text: "바닐라", correct: true },
-                    { text: "초코렛", correct: false },
-                    { text: "계피", correct: false }
-                ]
-            },
-            { 
-                pen: 4,
-                options: [
-                    { text: "파", correct: false },
-                    { text: "페퍼민트", correct: true },
-                    { text: "전나무", correct: false },
-                    { text: "양파", correct: false }
-                ]
-            },
-            { 
-                pen: 5,
-                options: [
-                    { text: "코코넛", correct: false },
-                    { text: "바나나", correct: true },
-                    { text: "호두", correct: false },
-                    { text: "버찌", correct: false }
-                ]
-            },
-            { 
-                pen: 6,
-                options: [
-                    { text: "복숭아", correct: false },
-                    { text: "사과", correct: false },
-                    { text: "레몬", correct: true },
-                    { text: "자몽", correct: false }
-                ]
-            },
-            { 
-                pen: 7,
-                options: [
-                    { text: "감초", correct: true },
-                    { text: "버찌", correct: false },
-                    { text: "츄잉껌", correct: false },
-                    { text: "과자", correct: false }
-                ]
-            },
-            { 
-                pen: 8,
-                options: [
-                    { text: "겨자", correct: false },
-                    { text: "고무", correct: false },
-                    { text: "박하뇌", correct: false },
-                    { text: "송진", correct: true }
-                ]
-            },
-            { 
-                pen: 9,
-                options: [
-                    { text: "양파", correct: false },
-                    { text: "찐양배추", correct: false },
-                    { text: "마늘", correct: true },
-                    { text: "당근", correct: false }
-                ]
-            },
-            { 
-                pen: 10,
-                options: [
-                    { text: "담배", correct: true },
-                    { text: "커피", correct: false },
+                    { text: "담배", correct: false },
+                    { text: "커피", correct: true },
                     { text: "포도주", correct: false },
                     { text: "연기", correct: false }
                 ]
