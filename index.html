@@ -1,71 +1,755 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>KVSS II 인지검사</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KVSS Test II - 인지검사</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+        
+        .screen {
+            display: none;
+        }
+        
+        .screen.active {
+            display: block;
+        }
+        
+        .info-screen {
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+        
+        .start-screen {
+            text-align: center;
+        }
+        
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+            color: #555;
+        }
+        
+        .btn {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,123,255,0.3);
+        }
+        
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .test-screen {
+            text-align: center;
+        }
+        
+        .progress {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            background: #28a745;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .question-number {
+            color: #6c757d;
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .option-btn {
+            background: #fff;
+            border: 2px solid #dee2e6;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stop-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .stop-btn:hover {
+            background: #c82333;
+        }
+        
+        .option-emoji {
+            font-size: 48px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 60px;
+        }
+        
+        .text-only {
+            font-size: 24px;
+            font-weight: bold;
+            color: #666;
+        }
+        
+        .option-text {
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .option-btn:hover {
+            border-color: #007bff;
+            background: #f8f9fa;
+            transform: scale(1.02);
+        }
+        
+        .timer {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .result-screen {
+            text-align: center;
+        }
+        
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #28a745;
+            margin: 30px 0;
+        }
+        
+        .result-details {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .correct {
+            color: #28a745;
+        }
+        
+        .incorrect {
+            color: #dc3545;
+        }
+        
+        .waiting-screen {
+            text-align: center;
+        }
+        
+        .countdown {
+            font-size: 72px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 30px 0;
+        }
+        
+        .pen-number {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .save-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .save-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .save-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .options {
+                grid-template-columns: 1fr;
+            }
+            
+            .option-emoji {
+                font-size: 36px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>KVSS II 인지검사</h1>
-  <form id="kvssForm">
-    <label>이름: <input type="text" name="patientName" required /></label><br/>
-    <label>병록번호: <input type="text" name="patientId" required /></label><br/><br/>
-
-    <div id="questionsContainer"></div>
-
-    <button type="submit">제출</button>
-  </form>
-
-  <script>
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGUBgeq7STISIf_7fJZcu4vL7iSgnqU4YeXrB5YFRzg5taeCYrR9-kQ-u5i8Ur7iWW/exec";
-
-    const questions = [
-      "Q1", "Q2", "Q3", "Q4", "Q5", "Q6", "Q7", "Q8",
-      "Q9", "Q10", "Q11", "Q12", "Q13", "Q14", "Q15", "Q16"
-    ];
-
-    const exampleOptions = ["오런제", "가죽", "바닐라", "페퍼민트", "바나나", "레몬", "감초", "송진", "마늘", "커피", "사과", "간장", "파인애플", "장미", "참기름", "생선"];
-
-    const questionsContainer = document.getElementById("questionsContainer");
-
-    questions.forEach((q, i) => {
-      const container = document.createElement("div");
-      container.innerHTML = `
-        <p>${q}</p>
-        <select name="q${i+1}" required>
-          <option value="">선택하세요</option>
-          ${exampleOptions.map(opt => `<option value="${opt}">${opt}</option>`).join("")}
-        </select>
-      `;
-      questionsContainer.appendChild(container);
-    });
-
-    document.getElementById("kvssForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-
-      const form = e.target;
-      const data = {
-        patientName: form.patientName.value,
-        patientId: form.patientId.value,
-        answers: questions.map((q, i) => ({
-          questionNumber: i + 1,
-          selectedOption: form[`q${i+1}`].value
-        }))
-      };
-
-      fetch(GOOGLE_SCRIPT_URL, {
-        method: "POST",
-        body: JSON.stringify(data)
-      })
-      .then(res => res.text())
-      .then(result => {
-        alert("제출 완료: " + result);
-      })
-      .catch(error => {
-        alert("오류 발생: " + error);
-      });
-    });
-  </script>
+    <div class="container">
+        <div class="screen info-screen active">
+            <h1>KVSS Test II - 인지검사</h1>
+            <div class="form-group">
+                <label for="patientName">환자 이름</label>
+                <input type="text" id="patientName" required placeholder="홍길동">
+            </div>
+            <div class="form-group">
+                <label for="patientId">병록 번호</label>
+                <input type="text" id="patientId" required placeholder="12345678">
+            </div>
+            <button class="btn" onclick="submitPatientInfo()">다음</button>
+        </div>
+        
+        <div class="screen start-screen">
+            <h1>KVSS Test II - 인지검사</h1>
+            <div class="instructions">
+                <h3>검사 안내</h3>
+                <p>• 총 16개의 펜 냄새를 맡고 정답을 선택합니다</p>
+                <p>• 각 문항당 4개의 보기 중 1개를 선택해야 합니다</p>
+                <p>• 확실하지 않아도 반드시 1개를 선택하세요</p>
+                <p>• 다음 문항까지 5초의 휴식 시간이 있습니다</p>
+                <p>• 이전 문항으로 돌아갈 수 없습니다</p>
+            </div>
+            <button class="btn" onclick="startTest()">검사 시작</button>
+        </div>
+        
+        <div class="screen test-screen">
+            <button class="stop-btn" onclick="stopTest()">검사 중단하기</button>
+            <div class="progress">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="question-number"><span id="current">1</span>번 펜</div>
+            <div class="options" id="options">
+                </div>
+        </div>
+        
+        <div class="screen waiting-screen">
+            <button class="stop-btn" onclick="stopTest()">검사 중단하기</button>
+            <h2>다음 문항 준비중...</h2>
+            <div class="pen-number"><span id="nextPen">2</span>번 펜 냄새를 맡을 준비를 하세요</div>
+            <div class="countdown" id="countdown">5</div>
+            <p>냄새 적응을 방지하기 위한 휴식 시간입니다</p>
+        </div>
+        
+        <div class="screen result-screen">
+            <h1>검사 종료</h1>
+            <div style="margin: 40px 0; font-size: 24px; color: #333;">
+                검사가 종료되었습니다.<br>
+                수고하셨습니다.
+            </div>
+            <div id="saveStatus" class="save-status" style="display: none;"></div>
+            <button class="btn" onclick="location.reload()">새로운 검사 시작</button>
+        </div>
+    </div>
+    
+    <script>
+        // 이모지 매핑
+        const emojiMap = {
+            "오렌지": "🍊",
+            "검은딸기": "🍇",
+            "딸기": "🍓",
+            "파인애플": "🍍",
+            "연기": "💨",
+            "접착제": "🔧",
+            "가죽": "🥾",
+            "풀": "🌱",
+            "꿀": "🍯",
+            "바닐라": "🍦",
+            "초코렛": "🍫",
+            "계피": "",
+            "파": "🧅",
+            "페퍼민트": "🌿",
+            "전나무": "🌲",
+            "양파": "🧅",
+            "코코넛": "🥥",
+            "바나나": "🍌",
+            "호두": "🥜",
+            "버찌": "🍒",
+            "복숭아": "🍑",
+            "사과": "🍎",
+            "레몬": "🍋",
+            "자몽": "🍊",
+            "감초": "🌿",
+            "츄잉껌": "🍬",
+            "과자": "🍪",
+            "겨자": "",
+            "고무": "🎈",
+            "박하뇌": "🌿",
+            "송진": "🌲",
+            "찐양배추": "🥬",
+            "마늘": "🧄",
+            "당근": "🥕",
+            "담배": "🚬",
+            "커피": "☕",
+            "포도주": "🍷",
+            "멜론": "🍈",
+            "간장": "",
+            "후추": "",
+            "배": "🍐",
+            "자두": "🍑",
+            "녹차": "🍵",
+            "나무딸기": "🍓",
+            "장미": "🌹",
+            "참기름": "🏺",
+            "럼주": "🥃",
+            "빵": "🍞",
+            "생선": "🐟",
+            "치즈": "🧀",
+            "햄": "🥓"
+        };
+        
+        // KVSS Test II 데이터 - 표에 따라 정확히 입력
+        const testData = [
+            { 
+                pen: 1,
+                options: [
+                    { text: "오렌지", correct: true },
+                    { text: "검은딸기", correct: false },
+                    { text: "딸기", correct: false },
+                    { text: "파인애플", correct: false }
+                ]
+            },
+            { 
+                pen: 2,
+                options: [
+                    { text: "연기", correct: false },
+                    { text: "접착제", correct: false },
+                    { text: "가죽", correct: true },
+                    { text: "풀", correct: false }
+                ]
+            },
+            { 
+                pen: 3,
+                options: [
+                    { text: "꿀", correct: false },
+                    { text: "바닐라", correct: true },
+                    { text: "초코렛", correct: false },
+                    { text: "계피", correct: false }
+                ]
+            },
+            { 
+                pen: 4,
+                options: [
+                    { text: "파", correct: false },
+                    { text: "페퍼민트", correct: true },
+                    { text: "전나무", correct: false },
+                    { text: "양파", correct: false }
+                ]
+            },
+            { 
+                pen: 5,
+                options: [
+                    { text: "코코넛", correct: false },
+                    { text: "바나나", correct: true },
+                    { text: "호두", correct: false },
+                    { text: "버찌", correct: false }
+                ]
+            },
+            { 
+                pen: 6,
+                options: [
+                    { text: "복숭아", correct: false },
+                    { text: "사과", correct: false },
+                    { text: "레몬", correct: true },
+                    { text: "자몽", correct: false }
+                ]
+            },
+            { 
+                pen: 7,
+                options: [
+                    { text: "감초", correct: true },
+                    { text: "버찌", correct: false },
+                    { text: "츄잉껌", correct: false },
+                    { text: "과자", correct: false }
+                ]
+            },
+            { 
+                pen: 8,
+                options: [
+                    { text: "겨자", correct: false },
+                    { text: "고무", correct: false },
+                    { text: "박하뇌", correct: false },
+                    { text: "송진", correct: true }
+                ]
+            },
+            { 
+                pen: 9,
+                options: [
+                    { text: "양파", correct: false },
+                    { text: "찐양배추", correct: false },
+                    { text: "마늘", correct: true },
+                    { text: "당근", correct: false }
+                ]
+            },
+            { 
+                pen: 10,
+                options: [
+                    { text: "담배", correct: false },
+                    { text: "커피", correct: true },
+                    { text: "포도주", correct: false },
+                    { text: "연기", correct: false }
+                ]
+            },
+            { 
+                pen: 11,
+                options: [
+                    { text: "멜론", correct: false },
+                    { text: "복숭아", correct: false },
+                    { text: "오렌지", correct: false },
+                    { text: "사과", correct: true }
+                ]
+            },
+            { 
+                pen: 12,
+                options: [
+                    { text: "간장", correct: true },
+                    { text: "후추", correct: false },
+                    { text: "계피", correct: false },
+                    { text: "겨자", correct: false }
+                ]
+            },
+            { 
+                pen: 13,
+                options: [
+                    { text: "배", correct: false },
+                    { text: "자두", correct: false },
+                    { text: "복숭아", correct: false },
+                    { text: "파인애플", correct: true }
+                ]
+            },
+            { 
+                pen: 14,
+                options: [
+                    { text: "녹차", correct: false },
+                    { text: "나무딸기", correct: false },
+                    { text: "장미", correct: true },
+                    { text: "버찌", correct: false }
+                ]
+            },
+            { 
+                pen: 15,
+                options: [
+                    { text: "참기름", correct: true },
+                    { text: "럼주", correct: false },
+                    { text: "꿀", correct: false },
+                    { text: "전나무", correct: false }
+                ]
+            },
+            { 
+                pen: 16,
+                options: [
+                    { text: "빵", correct: false },
+                    { text: "생선", correct: true },
+                    { text: "치즈", correct: false },
+                    { text: "햄", correct: false }
+                ]
+            }
+        ];
+        
+        let currentQuestion = 0;
+        let answers = [];
+        let waitingTimer = null;
+        let patientInfo = {};
+        let testStartTime = null;
+        
+        // 환자 정보 제출 함수
+        function submitPatientInfo() {
+            const name = document.getElementById('patientName').value;
+            const id = document.getElementById('patientId').value;
+            
+            if (!name || !id) {
+                alert('이름과 병록번호를 모두 입력해주세요.');
+                return;
+            }
+            
+            patientInfo = {
+                name: name,
+                id: id,
+                date: new Date().toLocaleString('ko-KR')
+            };
+            showScreen('start-screen');
+        }
+        
+        function startTest() {
+            testStartTime = new Date();
+            showScreen('test-screen');
+            showQuestion();
+        }
+        
+        function stopTest() {
+            if (confirm('검사를 중단하시겠습니까?')) {
+                if (waitingTimer) {
+                    clearInterval(waitingTimer);
+                }
+                currentQuestion = 0;
+                answers = [];
+                testStartTime = null;
+                document.getElementById('patientName').value = '';
+                document.getElementById('patientId').value = '';
+                showScreen('info-screen');
+            }
+        }
+        
+        function showScreen(screenName) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.querySelector('.' + screenName).classList.add('active');
+        }
+        
+        function showQuestion() {
+            const question = testData[currentQuestion];
+            document.getElementById('current').textContent = question.pen;
+            
+            // 진행률 업데이트
+            const progress = ((currentQuestion + 1) / testData.length) * 100;
+            document.querySelector('.progress-bar').style.width = progress + '%';
+            
+            // 옵션 버튼 생성
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                
+                const emoji = document.createElement('div');
+                emoji.className = 'option-emoji';
+                
+                // 이모지가 없는 경우 텍스트만 표시
+                const emojiChar = emojiMap[option.text];
+                if (emojiChar === "") {
+                    emoji.className = 'option-emoji text-only';
+                    emoji.textContent = option.text;
+                } else {
+                    emoji.textContent = emojiChar || '❓';
+                }
+                
+                const text = document.createElement('div');
+                text.className = 'option-text';
+                text.textContent = option.text;
+                
+                button.appendChild(emoji);
+                // 이모지가 없는 경우 중복 텍스트 표시 안함
+                if (emojiChar !== "") {
+                    button.appendChild(text);
+                }
+                button.onclick = () => selectAnswer(index);
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        function selectAnswer(selectedIndex) {
+            const question = testData[currentQuestion];
+            const correctIndex = question.options.findIndex(opt => opt.correct);
+            
+            answers.push({
+                pen: question.pen,
+                selected: selectedIndex,
+                correct: selectedIndex === correctIndex,
+                selectedOption: question.options[selectedIndex].text,
+                correctOption: question.options[correctIndex].text
+            });
+            
+            currentQuestion++;
+            
+            if (currentQuestion < testData.length) {
+                // 다음 펜 번호 표시
+                document.getElementById('nextPen').textContent = testData[currentQuestion].pen;
+                // 대기 화면 표시
+                showScreen('waiting-screen');
+                startWaitingTimer();
+            } else {
+                // 검사 종료
+                showResults();
+            }
+        }
+        
+        function startWaitingTimer() {
+            let seconds = 5;
+            document.getElementById('countdown').textContent = seconds;
+            
+            waitingTimer = setInterval(() => {
+                seconds--;
+                document.getElementById('countdown').textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(waitingTimer);
+                    showScreen('test-screen');
+                    showQuestion();
+                }
+            }, 1000);
+        }
+        
+        function showResults() {
+            showScreen('result-screen');
+            
+            const correctCount = answers.filter(a => a.correct).length;
+            
+            // 구글 스프레드시트에 저장
+            saveToGoogleSheets(correctCount);
+        }
+        
+        function saveToGoogleSheets(correctCount) {
+            const testEndTime = new Date();
+            const duration = Math.round((testEndTime - testStartTime) / 1000); // 초 단위
+            
+            const data = {
+                timestamp: new Date().toISOString(),
+                patientName: patientInfo.name,
+                patientId: patientInfo.id,
+                score: correctCount,
+                totalQuestions: testData.length,
+                percentage: Math.round((correctCount / testData.length) * 100),
+                duration: duration,
+                answers: answers
+            };
+            
+            // Google Apps Script Web App URL이 필요합니다
+            // 아래 URL을 실제 Google Apps Script URL로 변경해야 합니다
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxydt5ATWeNlC4NC06jCFzhnRICBEJCgOrVl0mJoj1uDr-3Px_aCPQYZ92lpAyQZQA0/exec';
+            
+            const statusDiv = document.getElementById('saveStatus');
+            statusDiv.style.display = 'block';
+            statusDiv.className = 'save-status';
+            statusDiv.textContent = '결과를 저장하는 중...';
+            
+            // 실제 구현시 주석 해제
+            /*
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(() => {
+                statusDiv.className = 'save-status save-success';
+                statusDiv.textContent = '✓ 결과가 성공적으로 저장되었습니다.';
+            })
+            .catch(error => {
+                statusDiv.className = 'save-status save-error';
+                statusDiv.textContent = '⚠ 저장 중 오류가 발생했습니다.';
+                console.error('Error:', error);
+            });
+            */
+            
+            
+        }
+    </script>
 </body>
 </html>
