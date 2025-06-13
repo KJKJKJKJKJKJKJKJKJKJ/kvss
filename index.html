@@ -720,7 +720,7 @@
             
             // Google Apps Script Web App URL이 필요합니다
             // 아래 URL을 실제 Google Apps Script URL로 변경해야 합니다
-            const GOOGLE_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+            const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbztV-9-fhda6Qlv6jKd3kpbcVMnpKtgEzOqa_tF_DB0_HSFVP7XOMWYKSQNyQWv1tmi/exec';
             
             const statusDiv = document.getElementById('saveStatus');
             statusDiv.style.display = 'block';
@@ -748,10 +748,7 @@
             });
             */
             
-            // 테스트용 - 실제 구현시 제거
-            console.log('저장할 데이터:', data);
-            statusDiv.className = 'save-status save-success';
-            statusDiv.textContent = '✓ 결과가 콘솔에 출력되었습니다. (테스트 모드)';
+            
         }
     </script>
 </body>
